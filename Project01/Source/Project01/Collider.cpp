@@ -8,6 +8,8 @@
 #include "Components/InputComponent.h"
 #include "Gameframework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "MyColliderMovementComponent.h" 
+#include "GameFramework/Controller.h"
 
 // Sets default values
 ACollider::ACollider()
@@ -28,6 +30,7 @@ ACollider::ACollider()
 
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 	MeshComponent->SetupAttachment(GetRootComponent());
+	MeshComponent->SetRelativeLocation(FVector(0.0f, 0.0f, -20.0f));
 
 	// Code to hardcode a static mesh to MeshComponent.
 	//.. static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshComponentAsset(TEXT("StaticMesh'/Game/ParagonMinions/FX/Meshes/PlayerBuffs/SM_Buff_Tetra.SM_Buff_Tetra'"));
@@ -58,6 +61,10 @@ ACollider::ACollider()
 	// Attached CameraComponent to the end of the SpringArmCompnent (Camera behind Pawn)
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 
+	OurMovementComponent = CreateDefaultSubobject<UMyColliderMovementComponent>(TEXT("MovementComponent"));
+	OurMovementComponent->UpdatedComponent = RootComponent; 
+
+	CameraInput = FVector2D(0.0f, 0.0f);
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
@@ -74,6 +81,15 @@ void ACollider::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	FRotator NewRotation = GetActorRotation();
+
+	NewRotation.Yaw += CameraInput.X;
+	SetActorRotation(NewRotation);
+
+	FRotator NewSpringArmRotation = SpringArmComponent->GetComponentRotation();
+	NewSpringArmRotation.Pitch = FMath::Clamp(NewSpringArmRotation.Pitch += CameraInput.Y, -80.0f, -15.0f);
+
+	SpringArmComponent->SetWorldRotation(NewSpringArmRotation);
 }
 
 // Called to bind functionality to input
@@ -83,19 +99,45 @@ void ACollider::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ACollider::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &ACollider::MoveRight);
+
+	PlayerInputComponent->BindAxis(TEXT("CameraPitch"), this, &ACollider::PitchCamera);
+	PlayerInputComponent->BindAxis(TEXT("CameraYaw"), this, &ACollider::YawCamera);
+}
+
+UPawnMovementComponent* ACollider::GetMovementComponent() const
+{
+	return OurMovementComponent;
 }
 
 // Will move Collider Forward/Backward on AxisInput
 void ACollider::MoveForward(float Value)
 {
 	FVector Forward = GetActorForwardVector();
-	AddMovementInput(Value * Forward);
+	if (OurMovementComponent)
+	{
+		OurMovementComponent->AddInputVector(Value * Forward);
+	}
+	
 }
 
 // Will move Collider Right/Left on AxisInput
 void ACollider::MoveRight(float Value)
 {
 	FVector Right = GetActorRightVector();
-	AddMovementInput(Value * Right);
+	if (OurMovementComponent)
+	{
+		OurMovementComponent->AddInputVector(Value * Right);
+	}
+	
 }
+void ACollider::YawCamera(float AxisValue)
+{
+	CameraInput.X = AxisValue;
+}
+void ACollider::PitchCamera(float AxisValue)
+{
+	CameraInput.Y = AxisValue;
+}
+
+
 

@@ -27,17 +27,22 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Mesh")
-		class UStaticMeshComponent* MeshComponent;
+	class UStaticMeshComponent* MeshComponent;
 
 	// Sphere for collision and overlap
 	UPROPERTY(VisibleAnywhere, Category = "Mesh")
-		class USphereComponent* SphereComponent;
+	class USphereComponent* SphereComponent;
 
 	UPROPERTY(VisibleAnywhere, Category = "Mesh")
-		class UCameraComponent* CameraComponent;
+	class UCameraComponent* CameraComponent;
 
 	UPROPERTY(VisibleAnywhere, Category = "Mesh")
 	class USpringArmComponent* SpringArmComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Mesh")
+	class UMyColliderMovementComponent* OurMovementComponent;
+
+	virtual UPawnMovementComponent* GetMovementComponent() const override;
 
 	// While compiling FORCEINLINE will paste the body of the function where ever the function is called
 	FORCEINLINE UStaticMeshComponent* GetMeshComponent(){return MeshComponent;}
@@ -54,4 +59,9 @@ private:
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
+
+	void PitchCamera(float AxisValue);
+	void YawCamera(float AxisValue);
+
+	FVector2D CameraInput; 
 };

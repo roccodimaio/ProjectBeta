@@ -3,6 +3,7 @@
 
 #include "EnemyBase.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
 #include "Camera/CameraComponent.h"
 
@@ -16,7 +17,7 @@ AEnemyBase::AEnemyBase()
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 
 	// Create a default UStaticMeshComponent and assign it to MeshComponent
-	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+	MeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComponent"));
 
 	// Attached MeshComponent to the RootComponent
 	MeshComponent->SetupAttachment(GetRootComponent());
@@ -27,7 +28,7 @@ AEnemyBase::AEnemyBase()
 	Camera->SetRelativeLocation(FVector(-300.0f, 0.0f, 300.0f));
 	Camera->SetRelativeRotation(FRotator(-45.0f, 0.0f, 0.0f));
 
-	AutoPossessPlayer = EAutoReceiveInput::Player0;
+	//AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 	CurrentVelocity = FVector(0.0f);
 
