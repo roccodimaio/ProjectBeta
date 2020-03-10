@@ -5,6 +5,8 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "TimerManager.h"
+
 
 // Sets default values
 AFloorSwitch::AFloorSwitch()
@@ -42,7 +44,15 @@ AFloorSwitch::AFloorSwitch()
 	DoorSteamRight = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("DoorSteamRight"));
 	DoorSteamRight->SetupAttachment(GetRootComponent());
 
+	SwitchTime = 2.0f; 
+
+	bCharacterOnSwitch = false;
+
+	bCanPlayDoorSound = true;
+
+
 }
+
 
 // Called when the game starts or when spawned
 void AFloorSwitch::BeginPlay()
@@ -51,7 +61,9 @@ void AFloorSwitch::BeginPlay()
 
 	TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AFloorSwitch::OnOverlapBegin);
 	TriggerBox->OnComponentEndOverlap.AddDynamic(this, &AFloorSwitch::OnOverlapEnd);
-	
+
+	InitialDoorLocation = Door->GetComponentLocation();
+	//InitialSwitchLocation = FloorSwitch->GetComponentLocation();
 }
 
 // Called every frame
@@ -64,10 +76,55 @@ void AFloorSwitch::Tick(float DeltaTime)
 void AFloorSwitch::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Overlap Begin")); 
+	
+	if (!bCharacterOnSwitch)
+	{
+		bCharacterOnSwitch = true; 
+	}
+
+	LowerDoor();
+	LowerFLoorSwitch();
+
+	bCanPlayDoorSound = false; 
+
 }
 
 void AFloorSwitch::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Overlap End"));
+	
+	if (bCharacterOnSwitch)
+	{
+		bCharacterOnSwitch = false;
+	}
+
+	// Call function AFloorSwitch::CloseDoor after a delay of SwitchTime(2.0 seconds)
+	GetWorldTimerManager().SetTimer(SwitchHandle, this, &AFloorSwitch::CloseDoor, SwitchTime);
+		
+}
+
+void AFloorSwitch::UpdateDoorLocation(float Z)
+{
+	FVector NewLocation = InitialDoorLocation; 
+	NewLocation.Z += Z; 
+	Door->SetWorldLocation(NewLocation);
+}
+
+void AFloorSwitch::UpdateFloorSwitchLocation(float Z)
+{
+	FVector NewLocation = InitialSwitchLocation;
+	NewLocation.Z += Z;
+	FloorSwitch->SetWorldLocation(NewLocation);
+}
+
+void AFloorSwitch::CloseDoor()
+{
+	if (!bCharacterOnSwitch)
+	{
+		RaiseDoor();
+		RaiseFloorSwitch();
+		bCanPlayDoorSound = true; 
+	}
+
 }
 
