@@ -4,24 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Item.generated.h"
+#include "Item_BoxCollision.generated.h"
 
 UCLASS()
-class PROJECT01_API AItem : public AActor
+class PROJECT01_API AItem_BoxCollision : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AItem();
+	AItem_BoxCollision();
 
-	/** Base shape collision */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item | Collision")
-	class UCapsuleComponent* CollisionVolume; 
+	class UBoxComponent* BoxCollisionVolume;
 
-	/** Base Mesh component*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item | Mesh")
-	class UStaticMeshComponent* Mesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Collision")
+	class UStaticMeshComponent* Mesh; 
 
 	/** Base Particle component*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Particles")
@@ -43,4 +41,5 @@ public:
 
 	UFUNCTION()
 	virtual void OnOverLapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 };
