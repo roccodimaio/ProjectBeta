@@ -7,6 +7,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 AItem::AItem()
@@ -23,6 +24,9 @@ AItem::AItem()
 	IdleParticlesComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("IdleParticles"));
 	IdleParticlesComponent->SetupAttachment(GetRootComponent());
 
+	bRotate = false; 
+
+	RotationRate = 45.0f; 
 }
 
 // Called when the game starts or when spawned
@@ -39,6 +43,15 @@ void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (bRotate)
+	{
+		FRotator Rotation = GetActorRotation(); 
+
+		// increase rotation by rotational rate
+		Rotation.Yaw += DeltaTime * RotationRate; 
+		SetActorRotation(Rotation);
+	}
+
 }
 
 void AItem::OnOverLapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -50,6 +63,10 @@ void AItem::OnOverLapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	{
 		// Call SpawnEmitterAtLoction function (#include Kismet/GameplayStatics and Engine/World
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OverlapParticles, GetActorLocation(), FRotator(0.0f), true);
+	}
+	if (OverlapSound)
+	{
+		UGameplayStatics::PlaySound2D(this, OverlapSound);
 	}
 	Destroy();
 }

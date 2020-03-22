@@ -48,7 +48,17 @@ AMain::AMain()
 	GetCharacterMovement()->JumpZVelocity = 650.0f; 
 	GetCharacterMovement()->AirControl = 0.2f; 
 
+	MaxHealth = 100.0f;
+	Health = 60.0f; 
+	MaxStamina = 350.0f;
+	Stamina = 120.0f;
+	MaxMana = 100.0f;
+	Mana = 80.0f;
+	Aether = 0;
+	MaxAether = 999999;
 }
+
+
 
 // Called when the game starts or when spawned
 void AMain::BeginPlay()
@@ -137,5 +147,35 @@ void AMain::LookUpAtRate(float Rate)
 {
 	// Take input of Rate (0 or 1), multiple by BaseLookUpRate, multiply by DeltaSeconds and rotate the controller on the Pitch for that frame
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AMain::DecrementHealth(float Amount)
+{
+	if (Health - Amount <= 0.0f)
+	{
+		Health = 0.0f;
+		Die();
+	}
+	else
+	{
+		Health -= Amount; 
+	}
+}
+
+void AMain::Die()
+{
+
+}
+
+void AMain::IncrementAether(int32 Amount)
+{
+	if (Aether + Amount >= MaxAether)
+	{
+		Aether = MaxAether;
+	}
+	else
+	{
+		Aether += Amount; 
+	}
 }
 

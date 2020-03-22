@@ -17,6 +17,9 @@ class PROJECT01_API APickup : public AItem
 public:
 	APickup();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aether")
+	int32 AetherCount;
+
 	virtual void OnOverLapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
 	virtual void OnOverLapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
