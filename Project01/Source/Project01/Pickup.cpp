@@ -26,6 +26,7 @@ void APickup::OnOverLapBegin(UPrimitiveComponent* OverlappedComponent, AActor* O
 		{
 			// Call function from Main to increment Aether
 			Main->IncrementAether(AetherCount);
+			Main->PickupLocations.Add(GetActorLocation());
 		}
 	}
 }

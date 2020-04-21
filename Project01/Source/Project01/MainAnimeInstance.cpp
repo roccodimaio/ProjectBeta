@@ -3,12 +3,18 @@
 
 #include "MainAnimeInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Main.h"
 
 void UMainAnimeInstance::NativeInitializeAnimation()
 {
 	if (Pawn == nullptr)
 	{
 		Pawn = TryGetPawnOwner();
+		
+		if (Pawn)
+		{
+			Main = Cast<AMain>(Pawn);
+		}
 	}
 
 	bLeap = false; 
@@ -21,6 +27,7 @@ void UMainAnimeInstance::UpdateAnimationProperties()
 	if (Pawn == nullptr)
 	{
 		Pawn = TryGetPawnOwner();
+
 	}
 
 	if (Pawn)
@@ -47,5 +54,9 @@ void UMainAnimeInstance::UpdateAnimationProperties()
 			bLeap = false; 
 		}
 
+		if (Main == nullptr)
+		{
+			Main = Cast<AMain>(Pawn);
+		}
 	}
 }

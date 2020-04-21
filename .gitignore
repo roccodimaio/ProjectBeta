@@ -104,3 +104,4 @@ Plugins/*/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 Project01/Content/GenericNPCAnimPack/
+*.zip

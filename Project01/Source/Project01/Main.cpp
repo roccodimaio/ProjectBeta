@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 AMain::AMain()
@@ -50,12 +51,26 @@ AMain::AMain()
 
 	MaxHealth = 100.0f;
 	Health = 60.0f; 
-	MaxStamina = 350.0f;
+	MaxStamina = 150.0f;
 	Stamina = 120.0f;
 	MaxMana = 100.0f;
+	ManaRegenRate = 10.0f;
 	Mana = 80.0f;
 	Aether = 0;
 	MaxAether = 999999;
+
+	RunningSpeed = 650.0f;
+	SprintingSpeed = 950.0f; 
+
+	bSprintKeyDown = false; 
+
+	// Initialize ENUMS
+	MovementStatus = EMovementStatus::EMS_Normal;
+	StaminaStatus = EStaminaStatus::ESS_Normal;
+
+	StaminaDrainRate = 25.0f;
+	StaminaRegenRate = 5.0f; 
+	MinSprintStamina = 50.0f;
 }
 
 
@@ -64,13 +79,105 @@ AMain::AMain()
 void AMain::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
 void AMain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	float DeltaStamina = StaminaDrainRate * DeltaTime; 
+	float DeltaRegenStamina = StaminaRegenRate * DeltaTime; 
+
+	switch (StaminaStatus)
+	{
+	case EStaminaStatus::ESS_Normal:
+		if (bSprintKeyDown) // Sprint key pressed
+		{
+			if (Stamina - DeltaStamina <= MinSprintStamina)
+			{
+				SetStaminaStatus(EStaminaStatus::ESS_BelowMinimum);
+				Stamina -= DeltaStamina;
+			}
+			else
+			{
+				Stamina -= DeltaStamina; 
+			}
+			SetMovementStatus(EMovementStatus::EMS_Sprinting);
+	
+		}
+		else // Sprint key up
+		{
+			if (Stamina + DeltaStamina >= MaxStamina)
+			{
+				Stamina = MaxStamina;
+			}
+			else
+			{
+				Stamina += DeltaRegenStamina;
+			}
+			SetMovementStatus(EMovementStatus::EMS_Normal);
+		}
+		break;
+	case EStaminaStatus::ESS_BelowMinimum:
+		if (bSprintKeyDown)
+		{
+			if (Stamina - DeltaStamina <= 0.0f)
+			{
+				SetStaminaStatus(EStaminaStatus::ESS_Exhausted);
+				Stamina = 0;
+				SetMovementStatus(EMovementStatus::EMS_Normal);
+			}
+			else
+			{
+				Stamina -= DeltaStamina;
+				SetMovementStatus(EMovementStatus::EMS_Sprinting);
+			}
+		}
+		else // Sprint key up
+		{
+			if (Stamina + DeltaStamina >= MinSprintStamina)
+			{
+				SetStaminaStatus(EStaminaStatus::ESS_Normal);
+				Stamina += DeltaRegenStamina;
+			}
+			else
+			{
+				Stamina += DeltaRegenStamina;
+			}
+			SetMovementStatus(EMovementStatus::EMS_Normal);
+		}
+		break;
+	case EStaminaStatus::ESS_Exhausted:
+		if (bSprintKeyDown)
+		{
+			Stamina = 0.0f;
+		}
+		else // Sprint key up
+		{
+			SetStaminaStatus(EStaminaStatus::ESS_ExhaustedRecovering);
+			Stamina += DeltaRegenStamina;
+		}
+		SetMovementStatus(EMovementStatus::EMS_Normal);
+
+		break;
+	case EStaminaStatus::ESS_ExhaustedRecovering:
+		if (Stamina + DeltaRegenStamina >= MinSprintStamina)
+		{
+			SetStaminaStatus(EStaminaStatus::ESS_Normal);
+			Stamina += DeltaRegenStamina;
+		}
+		else
+		{
+			Stamina += DeltaRegenStamina;
+		}
+		SetMovementStatus(EMovementStatus::EMS_Normal);
+
+		break;
+	default:
+		break;
+	}
 
 }
 
@@ -84,6 +191,9 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump); // Bind key/button assigned to Jump to built in function from Character called Jump
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMain::SprintKeyDown); // Bind key/button assigned to SprintKeyDown function below
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMain::SprintkeyUp);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMain::MoveForward);  // Bind key/button assigned to MoveForward to the function MoveForward from &AMain
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);  // Bind key/button assigned to MoveRightto the function MoveRight from &AMain
@@ -149,6 +259,7 @@ void AMain::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
+
 void AMain::DecrementHealth(float Amount)
 {
 	if (Health - Amount <= 0.0f)
@@ -179,3 +290,35 @@ void AMain::IncrementAether(int32 Amount)
 	}
 }
 
+
+void AMain::SetMovementStatus(EMovementStatus Status)
+{
+	MovementStatus = Status; 
+	if (MovementStatus == EMovementStatus::EMS_Sprinting)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = SprintingSpeed;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = RunningSpeed;
+	}
+}
+
+void AMain::SprintKeyDown()
+{
+	bSprintKeyDown = true; 
+}
+
+void AMain::SprintkeyUp()
+{
+	bSprintKeyDown = false; 
+}
+
+void AMain::ShowPickupLocations()
+{
+	for (int32 i = 0; i < PickupLocations.Num(); i++)
+	{
+		// Draw debug sphere at a location with 12 sections in green for 10 seconds with a thickness of 0.5
+		UKismetSystemLibrary::DrawDebugSphere(this, PickupLocations[i] + FVector(0, 0, 75.0f), 25.0f, 12, FLinearColor::Green, 10.0f, 0.5f);
+	}
+}
