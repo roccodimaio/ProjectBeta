@@ -27,6 +27,8 @@ void APickup_BoxCollision::OnOverLapBegin(UPrimitiveComponent* OverlappedCompone
 			// Call function from Main to increment Aether
 			Main->IncrementAether(AetherCount);
 			Main->PickupLocations.Add(GetActorLocation());
+
+			Destroy();
 		}
 	}
 }

@@ -77,7 +77,6 @@ void AItem_BoxCollision::OnOverLapBegin(UPrimitiveComponent* OverlappedComponent
 	{
 		UGameplayStatics::PlaySound2D(this, OverlapSound);
 	}
-	Destroy();
 }
 
 void AItem_BoxCollision::OnOverLapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

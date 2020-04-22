@@ -36,8 +36,7 @@ public:
 	// Array that stores FVectors
 	TArray<FVector> PickupLocations;
 
-	UFUNCTION(BlueprintCallable)
-	void ShowPickupLocations();
+	
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Enums")
 	EMovementStatus MovementStatus;
@@ -156,6 +155,25 @@ public:
 	*/
 	void LookUpAtRate(float Rate);
 
+	bool bActionButtonDown;
+	void ActionButtonDown();
+	void ActionButtonUp();
+
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	
+
+	UFUNCTION(BlueprintCallable)
+	void ShowPickupLocations();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
+	class AWeapon* EquippedWeapon;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items")
+	class AItem* ActiveOverlappingItem;
+
+	FORCEINLINE void SetEquippedWeapon(AWeapon* WeaponToSet) { EquippedWeapon = WeaponToSet; }
+	FORCEINLINE void SetActiveOverlappingItem(AItem* Item) { ActiveOverlappingItem = Item; }
+
 };

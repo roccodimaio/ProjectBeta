@@ -9,6 +9,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Weapon.h"
 
 // Sets default values
 AMain::AMain()
@@ -63,6 +64,7 @@ AMain::AMain()
 	SprintingSpeed = 950.0f; 
 
 	bSprintKeyDown = false; 
+	bActionButtonDown = false;
 
 	// Initialize ENUMS
 	MovementStatus = EMovementStatus::EMS_Normal;
@@ -195,6 +197,9 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMain::SprintKeyDown); // Bind key/button assigned to SprintKeyDown function below
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMain::SprintkeyUp);
 
+	PlayerInputComponent->BindAction("ActionButton", IE_Pressed, this, &AMain::ActionButtonDown); // Bind key/button assigned to ActionButton function below
+	PlayerInputComponent->BindAction("ActionButton", IE_Released, this, &AMain::ActionButtonUp);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMain::MoveForward);  // Bind key/button assigned to MoveForward to the function MoveForward from &AMain
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);  // Bind key/button assigned to MoveRightto the function MoveRight from &AMain
 	
@@ -259,6 +264,27 @@ void AMain::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
+void AMain::ActionButtonDown()
+{
+	bActionButtonDown = true;
+
+	if (ActiveOverlappingItem)
+	{
+		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
+
+		if(Weapon)
+		{
+			Weapon->Equip(this);
+			SetActiveOverlappingItem(nullptr);
+		}
+	}
+}
+
+void AMain::ActionButtonUp()
+{
+	bActionButtonDown = false;
+}
+
 
 void AMain::DecrementHealth(float Amount)
 {
@@ -316,9 +342,19 @@ void AMain::SprintkeyUp()
 
 void AMain::ShowPickupLocations()
 {
+	/** Standard for loop, should be used if only needing to loop through part or some other mathamatical restriction
 	for (int32 i = 0; i < PickupLocations.Num(); i++)
 	{
 		// Draw debug sphere at a location with 12 sections in green for 10 seconds with a thickness of 0.5
-		UKismetSystemLibrary::DrawDebugSphere(this, PickupLocations[i] + FVector(0, 0, 75.0f), 25.0f, 12, FLinearColor::Green, 10.0f, 0.5f);
+		UKismetSystemLibrary::DrawDebugSphere(this, PickupLocations[i] + FVector(0, 0, 0), 25.0f, 12, FLinearColor::Green, 10.0f, 0.5f);
+	} 
+	*/ 
+
+	// Range based for loop
+	for (auto Location : PickupLocations)
+	{
+		// Draw debug sphere at a location with 12 sections in green for 10 seconds with a thickness of 0.5
+		UKismetSystemLibrary::DrawDebugSphere(this, Location, 25.0f, 12, FLinearColor::Green, 10.0f, 0.5f);
 	}
+
 }

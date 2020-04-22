@@ -105,3 +105,16 @@ Plugins/*/Intermediate/*
 DerivedDataCache/*
 Project01/Content/GenericNPCAnimPack/
 *.zip
+*.fbx
+Project01/Source/SK_Mannequin_T_Pose_README.txt
+Project01/Source/SKMannequin_T_Pose/SK_Mannequin_T_Pose_README.txt
+Project01/Source/SKMannequin_A_Pose/UE4_Mannequin_occlusion.jpg
+Project01/Source/Project01/Weapon.h
+Project01/Source/Motionbuilder/SK_Mannequin_Edit_Template.fbm/UE4_Mannequin_occlusion.jpg
+Project01/Source/Maya/SK_Mannequin_HIK_Edit_Template.mb
+Project01/MCO_Mocap_Basics.png
+Project01/Source/UE4_MocapOnline_Tech_Notes.txt
+Project01/Source/SKMannequin_T_Pose/UE4_Mannequin_occlusion.jpg
+Project01/Source/SKMannequin_A_Pose/SK_Mannequin_A_Pose_README.txt
+Project01/Source/SK_Mannequin_A_Pose_README.txt
+Project01/Source/Project01/Weapon.cpp
