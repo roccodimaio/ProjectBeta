@@ -36,8 +36,6 @@ public:
 	// Array that stores FVectors
 	TArray<FVector> PickupLocations;
 
-	
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Enums")
 	EMovementStatus MovementStatus;
 
@@ -65,8 +63,6 @@ public:
 	float SprintingSpeed;
 
 	bool bSprintKeyDown;
-
-	
 
 	/** Pressed down to enable sprinting */
 	void SprintKeyDown();
@@ -156,6 +152,9 @@ public:
 	void LookUpAtRate(float Rate);
 
 	bool bActionButtonDown;
+	bool bWeaponEquipped;
+	bool bWeaponAttached;
+
 	void ActionButtonDown();
 	void ActionButtonUp();
 
@@ -170,10 +169,17 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
 	class AWeapon* EquippedWeapon;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
+	class AWeapon* AttachedWeapon;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items")
 	class AItem* ActiveOverlappingItem;
 
 	FORCEINLINE void SetEquippedWeapon(AWeapon* WeaponToSet) { EquippedWeapon = WeaponToSet; }
+	FORCEINLINE AWeapon* GetEquippedWeapon() { return EquippedWeapon; }
+	FORCEINLINE void SetAttachedWeapon(AWeapon* WeaponToAttach) { AttachedWeapon = WeaponToAttach; }
+	FORCEINLINE AWeapon* GetAttachedWeapon() { return AttachedWeapon; }
+
 	FORCEINLINE void SetActiveOverlappingItem(AItem* Item) { ActiveOverlappingItem = Item; }
 
 };

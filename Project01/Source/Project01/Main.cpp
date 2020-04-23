@@ -10,6 +10,7 @@
 #include "Engine/World.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Weapon.h"
+#include "Engine/SkeletalMeshSocket.h"
 
 // Sets default values
 AMain::AMain()
@@ -65,6 +66,8 @@ AMain::AMain()
 
 	bSprintKeyDown = false; 
 	bActionButtonDown = false;
+	bWeaponEquipped = false; 
+	bWeaponAttached = false; 
 
 	// Initialize ENUMS
 	MovementStatus = EMovementStatus::EMS_Normal;
@@ -81,7 +84,6 @@ AMain::AMain()
 void AMain::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 // Called every frame
